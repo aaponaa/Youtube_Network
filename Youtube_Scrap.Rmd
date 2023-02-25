@@ -1,0 +1,31 @@
+---
+title: "Youtube Recommandetion Algoritm Scrapping "
+author: "Maas Benjamin"
+date: "23 février 2023"
+output:
+  html_document:
+    theme: "united"
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    code_folding: hide
+    number_sections: true
+---
+
+
+```{r}
+library("readr")
+library("network")
+
+conspi_info <- read_csv("data/conspi_info.csv")
+conspi <- read_csv("data/conspi.csv", col_names = FALSE)
+
+View(conspi_info)
+```
+
+
+```{r}
+
+```
+
+
