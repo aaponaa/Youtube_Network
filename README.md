@@ -1,5 +1,3 @@
-Bien sûr, voici une proposition de contenu pour le fichier README de votre projet :
-
 # YouTube Video Recommender
 A simple YouTube video recommender system that leverages web scraping and the YouTube Data API to build a graph of video recommendations and generate a list of similar videos based on user input.
 
