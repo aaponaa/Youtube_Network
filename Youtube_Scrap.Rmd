@@ -12,20 +12,75 @@ output:
     number_sections: true
 ---
 
-
 ```{r}
-library("readr")
-library("network")
+library("ggplot2")
 
-conspi_info <- read_csv("data/conspi_info.csv")
-conspi <- read_csv("data/conspi.csv", col_names = FALSE)
+# Charger les données des codes uniques des vidéos
+codes <- read.csv("data/conspi.csv", header = FALSE)
+colnames(codes) <- "code"
 
-View(conspi_info)
+# Charger les données des informations des vidéos
+videos_info <- read.csv("data/conspi_info.csv", header = TRUE, sep = ",")
+
 ```
 
 
 ```{r}
+# Charger la bibliothèque igraph
+library("igraph")
+
+# Créer un graphe à partir des données de recommandation de YouTube
+g <- graph_from_data_frame(codes, directed = TRUE)
+
+# Calculer les mesures de centralité
+degree_centrality <- igraph::degree(g, mode = "in") # Degré entrant
+betweenness_centrality <- igraph::betweenness(g, directed = TRUE) # Intermédiarité
+closeness_centrality <- igraph::closeness(g, mode = "in") # Proximité entrante
+
+# Ajouter les mesures de centralité aux nœuds
+V(g)$degree_centrality <- degree_centrality
+V(g)$betweenness_centrality <- betweenness_centrality
+V(g)$closeness_centrality <- closeness_centrality
+# Renommer les noms des nœuds avec les titres de vidéos
+V(g)$name <- videos_info$titre[match(V(g)$name, videos_info$id)]
+
 
 ```
 
+```{r}
+library("ggraph")
+
+# Tracer le graphe
+ggraph(g, layout = "fr") + 
+  geom_edge_link() + 
+  geom_node_point() + 
+  geom_node_text(aes(label = name), vjust = 1, hjust = 0, size = 2) + 
+  theme_void() +
+  scale_edge_width_continuous(limits = c(0, 10)) # Modifier la largeur des liens
+
+
+# Tracer le graphe avec la taille des nœuds en fonction de la centralité
+ggraph(g, layout = "fr") + 
+  geom_edge_link() + 
+  geom_node_point(aes(size = degree_centrality), color = "blue", alpha = 0.5) + 
+  geom_node_text(aes(label = name), vjust = 1, hjust = 0, size = 2, na.rm = TRUE) + 
+  theme_void() +
+  scale_edge_width_continuous(limits = c(0, 10)) + # Modifier la largeur des liens
+  scale_size_continuous(range = c(2, 10))+ # Modifier la taille des nœuds
+  # Ajuster la distance entre les nœuds
+
+```
+
+```{r}
+layout <- layout_as_tree(g)
+
+# Tracer le graphe avec les noms des nœuds
+ggraph(g, layout = layout) + 
+  geom_edge_link() + 
+  geom_node_point() + 
+  geom_node_text(aes(label = name), vjust = 1, hjust = 0, size = 2, na.rm = TRUE) + 
+  theme_void() +
+  scale_edge_width_continuous(limits = c(0, 10)) + # Modifier la largeur des liens
+  scale_size_continuous(range = c(2, 10)) # Modifier la taille des nœuds
+```
 
